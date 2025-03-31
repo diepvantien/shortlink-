@@ -47,11 +47,16 @@
 </head>
 <body>
     <h1>URL Shortener</h1>
-    <p>Create shortened URLs that open in a new window</p>
+    <p>Create shortened URLs with popup functionality</p>
     
     <div class="form-group">
-        <label for="longUrl">Enter the URL to shorten:</label>
-        <input type="url" id="longUrl" placeholder="https://example.com/long/url" required>
+        <label for="mainUrl">Link 1 (Main URL to redirect to):</label>
+        <input type="url" id="mainUrl" placeholder="https://example.com/main-destination" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="popupUrl">Link 2 (URL to open in new window):</label>
+        <input type="url" id="popupUrl" placeholder="https://example.com/popup-window" required>
     </div>
     
     <button onclick="shortenUrl()">Create Short URL</button>
@@ -60,7 +65,7 @@
         <p>Your shortened URL:</p>
         <p id="shortUrl"></p>
         <button onclick="copyToClipboard()">Copy URL</button>
-        <p><small>When someone clicks this link, it will open in a new window</small></p>
+        <p><small>When someone clicks this link, they will be redirected to Link 1 and Link 2 will open in a new window</small></p>
     </div>
 
     <script>
@@ -74,23 +79,27 @@
             return result;
         }
 
-        // Store URL mappings in localStorage for this demo
-        function storeLinkMapping(shortCode, originalUrl) {
+        // Store URL mappings in localStorage
+        function storeLinkMapping(shortCode, mainUrl, popupUrl) {
             const mappings = JSON.parse(localStorage.getItem('urlMappings') || '{}');
-            mappings[shortCode] = originalUrl;
+            mappings[shortCode] = {
+                mainUrl: mainUrl,
+                popupUrl: popupUrl
+            };
             localStorage.setItem('urlMappings', JSON.stringify(mappings));
         }
 
         function shortenUrl() {
-            const longUrl = document.getElementById('longUrl').value;
+            const mainUrl = document.getElementById('mainUrl').value;
+            const popupUrl = document.getElementById('popupUrl').value;
             
-            if (!longUrl) {
-                alert('Please enter a valid URL');
+            if (!mainUrl || !popupUrl) {
+                alert('Please enter both URLs');
                 return;
             }
             
             const shortCode = generateShortCode();
-            storeLinkMapping(shortCode, longUrl);
+            storeLinkMapping(shortCode, mainUrl, popupUrl);
             
             // Construct the shortened URL
             const baseUrl = window.location.href.split('?')[0].split('#')[0];
