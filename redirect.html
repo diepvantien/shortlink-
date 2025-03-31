@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trình tạo Link Rút Gọn</title>
+    <script>
+        function generateLink() {
+            const link1 = document.getElementById("link1").value;
+            const link2 = document.getElementById("link2").value;
+            const shortLink = document.getElementById("shortLink").value;
+            
+            if (!link1 || !link2 || !shortLink) {
+                alert("Vui lòng nhập đầy đủ thông tin!");
+                return;
+            }
+            
+            const redirectPage = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <title>Redirecting...</title>
+    <script>
+        function redirect() {
+            window.open('${link2}', '_blank');
+            window.location.href = '${link1}';
+        }
+    </script>
+</head>
+<body onload='redirect()'>
+    <p>Đang chuyển hướng...</p>
+</body>
+</html>`;
+            
+            const blob = new Blob([redirectPage], { type: "text/html" });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = shortLink + ".html";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    </script>
+</head>
+<body>
+    <h2>Trình tạo Link Rút Gọn</h2>
+    <label>Link 1 (Chuyển hướng đến):</label>
+    <input type="text" id="link1" placeholder="Nhập link chính"><br><br>
+    
+    <label>Link 2 (Mở cửa sổ mới):</label>
+    <input type="text" id="link2" placeholder="Nhập link phụ"><br><br>
+    
+    <label>Tên file rút gọn:</label>
+    <input type="text" id="shortLink" placeholder="Nhập tên file (không có .html)"><br><br>
+    
+    <button onclick="generateLink()">Tạo Link</button>
+</body>
+</html>
