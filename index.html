@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="url"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            display: none;
+        }
+        #shortUrl {
+            font-weight: bold;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <h1>URL Shortener</h1>
+    <p>Create shortened URLs that open in a new window</p>
+    
+    <div class="form-group">
+        <label for="longUrl">Enter the URL to shorten:</label>
+        <input type="url" id="longUrl" placeholder="https://example.com/long/url" required>
+    </div>
+    
+    <button onclick="shortenUrl()">Create Short URL</button>
+    
+    <div id="result">
+        <p>Your shortened URL:</p>
+        <p id="shortUrl"></p>
+        <button onclick="copyToClipboard()">Copy URL</button>
+        <p><small>When someone clicks this link, it will open in a new window</small></p>
+    </div>
+
+    <script>
+        // Simple function to generate a random short code
+        function generateShortCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < 6; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        // Store URL mappings in localStorage for this demo
+        function storeLinkMapping(shortCode, originalUrl) {
+            const mappings = JSON.parse(localStorage.getItem('urlMappings') || '{}');
+            mappings[shortCode] = originalUrl;
+            localStorage.setItem('urlMappings', JSON.stringify(mappings));
+        }
+
+        function shortenUrl() {
+            const longUrl = document.getElementById('longUrl').value;
+            
+            if (!longUrl) {
+                alert('Please enter a valid URL');
+                return;
+            }
+            
+            const shortCode = generateShortCode();
+            storeLinkMapping(shortCode, longUrl);
+            
+            // Construct the shortened URL
+            const baseUrl = window.location.href.split('?')[0].split('#')[0];
+            const shortenedUrl = baseUrl.substring(0, baseUrl.lastIndexOf('/') + 1) + 'redirect.html?code=' + shortCode;
+            
+            // Display the result
+            document.getElementById('shortUrl').textContent = shortenedUrl;
+            document.getElementById('result').style.display = 'block';
+        }
+
+        function copyToClipboard() {
+            const shortUrlText = document.getElementById('shortUrl').textContent;
+            navigator.clipboard.writeText(shortUrlText)
+                .then(() => alert('URL copied to clipboard!'))
+                .catch(err => console.error('Failed to copy: ', err));
+        }
+    </script>
+</body>
+</html>
