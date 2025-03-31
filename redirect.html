@@ -14,7 +14,7 @@
 </head>
 <body>
     <h1>Redirecting...</h1>
-    <p>You will be redirected to the destination URL in a moment.</p>
+    <p>You will be redirected in a moment.</p>
 
     <script>
         // Function to get URL parameters
@@ -29,7 +29,7 @@
         }
 
         // Main redirect function
-        function redirectToOriginalUrl() {
+        function processRedirect() {
             const shortCode = getParameterByName('code');
             
             if (!shortCode) {
@@ -39,23 +39,22 @@
             
             // Get the mappings from localStorage
             const mappings = JSON.parse(localStorage.getItem('urlMappings') || '{}');
-            const originalUrl = mappings[shortCode];
+            const urlData = mappings[shortCode];
             
-            if (!originalUrl) {
+            if (!urlData) {
                 document.body.innerHTML = '<h1>Error</h1><p>This short URL has expired or does not exist.</p>';
                 return;
             }
             
-            // Open the original URL in a new window
-            window.open(originalUrl, '_blank');
+            // Open the popup URL in a new window
+            window.open(urlData.popupUrl, '_blank');
             
-            // Also update the current page
-            document.body.innerHTML = '<h1>Link opened in new window</h1>' + 
-                '<p>If it didn\'t open automatically, <a href="' + originalUrl + '" target="_blank">click here</a>.</p>';
+            // Redirect to the main URL
+            window.location.href = urlData.mainUrl;
         }
 
-        // Execute the redirect when the page loads
-        window.onload = redirectToOriginalUrl;
+        // Execute when the page loads
+        window.onload = processRedirect;
     </script>
 </body>
 </html>
