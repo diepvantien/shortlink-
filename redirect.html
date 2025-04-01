@@ -3,18 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting...</title>
+    <title>Continue to Website</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            padding: 40px;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            margin: 10px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .countdown {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0;
         }
     </style>
 </head>
 <body>
-    <h1>Redirecting...</h1>
-    <p>You will be redirected in a moment.</p>
+    <div class="container">
+        <h1>Almost there!</h1>
+        <p>Click the button below to continue to your destination.</p>
+        <button id="continueBtn" class="btn">Continue to Website</button>
+        <p class="countdown">Redirecting in <span id="timer">5</span> seconds...</p>
+    </div>
 
     <script>
         // Function to get URL parameters
@@ -28,12 +60,44 @@
             return decodeURIComponent(results[2].replace(/\+/g, ' '));
         }
 
-        // Main redirect function
-        function processRedirect() {
+        // Variables to store URLs
+        let mainUrl = '';
+        let popupUrl = '';
+
+        // Function to handle both link actions
+        function processLinks() {
+            // Open popup URL in new window - will be allowed because it's from a user click
+            window.open(popupUrl, '_blank');
+            
+            // Redirect the current page to main URL
+            window.location.href = mainUrl;
+            
+            return false;
+        }
+
+        // Initialize and start countdown
+        function startCountdown() {
+            let seconds = 5;
+            const timerElement = document.getElementById('timer');
+            
+            const countdown = setInterval(function() {
+                seconds--;
+                timerElement.textContent = seconds;
+                
+                if (seconds <= 0) {
+                    clearInterval(countdown);
+                    // Only redirect to main URL after timeout, don't try to open popup
+                    window.location.href = mainUrl;
+                }
+            }, 1000);
+        }
+
+        // Main function to initialize the page
+        function init() {
             const shortCode = getParameterByName('code');
             
             if (!shortCode) {
-                document.body.innerHTML = '<h1>Error</h1><p>Invalid or missing short code.</p>';
+                document.body.innerHTML = '<div class="container"><h1>Error</h1><p>Invalid or missing short code.</p></div>';
                 return;
             }
             
@@ -42,19 +106,23 @@
             const urlData = mappings[shortCode];
             
             if (!urlData) {
-                document.body.innerHTML = '<h1>Error</h1><p>This short URL has expired or does not exist.</p>';
+                document.body.innerHTML = '<div class="container"><h1>Error</h1><p>This link has expired or does not exist.</p></div>';
                 return;
             }
             
-            // Open the popup URL in a new window
-            window.open(urlData.popupUrl, '_blank');
+            // Store the URLs globally
+            mainUrl = urlData.mainUrl;
+            popupUrl = urlData.popupUrl;
             
-            // Redirect to the main URL
-            window.location.href = urlData.mainUrl;
+            // Set up button click handler
+            document.getElementById('continueBtn').addEventListener('click', processLinks);
+            
+            // Start the countdown
+            startCountdown();
         }
 
-        // Execute when the page loads
-        window.onload = processRedirect;
+        // Initialize when the page loads
+        window.onload = init;
     </script>
 </body>
 </html>
